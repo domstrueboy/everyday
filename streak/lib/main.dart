@@ -10,8 +10,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      title: 'Shared preferences demo',
-      home: MyHomePage(title: 'Shared preferences demo'),
+      title: 'Streak',
+      home: MyHomePage(title: 'Дней подряд'),
     );
   }
 }
