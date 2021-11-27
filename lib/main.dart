@@ -29,28 +29,41 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  DateTime _start = DateTime.now();
+  DateTime _end = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    _loadCounter();
+    _loadData();
   }
 
   //Loading counter value on start
-  void _loadCounter() async {
+  void _loadData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _counter = (prefs.getInt('counter') ?? 0);
+      int startTimestamp = prefs.getInt('start') ?? 0;
+      if (startTimestamp > 0)
+        _start = DateTime.fromMillisecondsSinceEpoch(startTimestamp);
+
+      int endTimestamp = prefs.getInt('end') ?? 0;
+      if (endTimestamp > 0)
+        _end = DateTime.fromMillisecondsSinceEpoch(endTimestamp);
     });
+
+    if (_end.difference(DateTime.now()).inDays > 1) {
+      _start = DateTime.now();
+      prefs.setInt('start', _start.millisecondsSinceEpoch);
+      _end = DateTime.now();
+      prefs.setInt('end', _start.millisecondsSinceEpoch);
+    }
   }
 
   //Incrementing counter after click
-  void _incrementCounter() async {
+  void _setLastDate() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _counter = (prefs.getInt('counter') ?? 0) + 1;
-      prefs.setInt('counter', _counter);
+      prefs.setInt('end', _end.millisecondsSinceEpoch);
     });
   }
 
@@ -64,15 +77,17 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text('Start $_start'),
+            Text('End $_end'),
             Text(
-              '$_counter',
+              '${_end.difference(_start)}',
               style: Theme.of(context).textTheme.headline4,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: _setLastDate,
         tooltip: 'Next day',
         child: const Icon(Icons.arrow_forward),
       ),
